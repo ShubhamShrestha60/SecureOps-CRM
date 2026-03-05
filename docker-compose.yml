@@ -1,0 +1,42 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: secureops-backend
+    volumes:
+      - ./backend:/var/www
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - DB_CONNECTION=pgsql
+      - DB_HOST=database
+      - DB_PORT=5432
+      - DB_DATABASE=secureops
+      - DB_USERNAME=admin
+      - DB_PASSWORD=secret
+    depends_on:
+      - database
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: secureops-frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - backend
+
+  database:
+    image: postgres:16-alpine
+    container_name: secureops-db
+    environment:
+      - POSTGRES_DB=secureops
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=secret
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata:
