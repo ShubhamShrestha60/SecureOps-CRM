@@ -2,6 +2,7 @@
 FROM php:8.3-fpm-alpine as build
 
 # Install system dependencies
+# hadolint ignore=DL3018
 RUN apk add --no-cache \
     libpng-dev \
     libjpeg-turbo-dev \
@@ -35,6 +36,7 @@ FROM php:8.3-fpm-alpine
 WORKDIR /var/www
 
 # Install runtime dependencies
+# hadolint ignore=DL3018
 RUN apk add --no-cache \
     libpng \
     libjpeg-turbo \
