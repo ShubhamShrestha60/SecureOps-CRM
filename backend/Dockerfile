@@ -14,9 +14,9 @@ RUN apk add --no-cache \
     linux-headers
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg
-RUN docker-php-ext-install gd
+RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install gd
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -35,7 +35,12 @@ FROM php:8.3-fpm-alpine
 WORKDIR /var/www
 
 # Install runtime dependencies
-RUN apk add --no-cache libpng libjpeg-turbo freetype zip libzip
+RUN apk add --no-cache \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    zip \
+    libzip
 
 # Copy from build stage
 COPY --from=build /var/www /var/www
