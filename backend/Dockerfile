@@ -15,7 +15,7 @@ RUN apk add --no-cache \
     linux-headers
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl \
+RUN docker-php-ext-install pdo_pgsql mbstring zip exif pcntl \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
