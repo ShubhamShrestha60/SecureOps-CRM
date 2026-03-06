@@ -43,7 +43,14 @@ RUN apk add --no-cache \
     libjpeg-turbo \
     freetype \
     zip \
-    libzip
+    libzip \
+    libpq \
+    libmbstring \
+    oniguruma
+
+# Copy PHP extensions and configuration from build stage
+COPY --from=build /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
+COPY --from=build /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
 
 # Copy from build stage
 COPY --from=build /var/www /var/www
