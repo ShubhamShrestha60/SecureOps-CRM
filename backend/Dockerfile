@@ -45,7 +45,6 @@ RUN apk add --no-cache \
     zip \
     libzip \
     libpq \
-    libmbstring \
     oniguruma
 
 # Copy PHP extensions and configuration from build stage
