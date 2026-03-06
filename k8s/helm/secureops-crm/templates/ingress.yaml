@@ -19,7 +19,7 @@ spec:
             pathType: {{ .pathType }}
             backend:
               service:
-                name: {{ include "secureops-crm.fullname" .. }}-frontend
+                name: {{ include "secureops-crm.fullname" $ }}-frontend
                 port:
                   number: 80
           {{- end }}

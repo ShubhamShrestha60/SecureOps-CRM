@@ -1,7 +1,27 @@
-# 📔 The SecureOps DevOps Master Handbook
-### A-Z Guide for Local AlmaLinux 9.6 Deployment
+## �️ Chapter 0: The SecureOps Configuration Map
+Before diving into commands, here is every configuration file in your project and exactly why it exists.
 
-This handbook is your definitive guide to setting up, securing, and orchestrating the SecureOps-CRM on your local hardware.
+### 📁 Root Configuration
+*   **`docker-compose.yml`**: The "Local Orchestrator." It allows you to run the entire stack (App, DB, Proxy) on your machine with one command.
+*   **`Setup.txt`**: A quick-start note linking you to this Handbook.
+*   **`DEVOPS_MASTER_HANDBOOK.md`**: This book! Your A-Z guide.
+
+### 📁 GitHub Workflows (`.github/workflows/`)
+*   **`devsecops.yml`**: The "Security Handshake." It scans your code for leaks, vulnerabilities, and building issues every time you push.
+
+### 📁 Application Logic (`backend/` & `frontend/`)
+*   **`backend/Dockerfile`**: The "Recipe" for the Laravel container. Optimized and secured.
+*   **`frontend/Dockerfile`**: The "Recipe" for the React container.
+*   **`frontend/nginx.conf`**: The "Traffic Warden" inside the frontend container that routes API calls to the backend.
+
+### 📁 Kubernetes Orchestration (`k8s/`)
+*   **`helm/secureops-crm/`**: The "Chart." This is a professional package that manages all Kubernetes deployments (Backend, Frontend, Services, Ingress) in one place.
+*   **`monitoring/prometheus/`**: Scans your cluster for health and security metrics.
+*   **`monitoring/grafana/`**: Visualizes those metrics in beautiful dashboards.
+
+### 📁 Infrastructure as Code (`infrastructure/`)
+*   **`terraform/main.tf`**: The "Simulation Template." It shows how you *would* build this on the AWS cloud (VPC, Security Groups).
+*   **`ansible/hardening.yml`**: The "Drill Sergeant." It automatically hardens your AlmaLinux machine (Firewalls, SSH security, updates).
 
 ---
 
@@ -87,16 +107,18 @@ sudo chown $USER:$USER ~/.kube/config
 ```
 
 ### 4.2 Deploying with Helm
+Helm handles the orchestration logic. Since you used `docker compose` earlier, your images are already built!
+
 ```bash
-# Build images for the cluster
-docker build -t secureops-backend:latest ./backend
-docker build -t secureops-frontend:latest ./frontend
+# 1. Import existing images into K3s (Crucial Step)
+# This moves them from Docker's cache into K3s's internal registry
+sudo k3s ctr images import <(docker save secureops-crm-backend:latest)
+sudo k3s ctr images import <(docker save secureops-crm-frontend:latest)
 
-# Import into K3s (Crucial Step)
-sudo k3s ctr images import <(docker save secureops-backend:latest)
-sudo k3s ctr images import <(docker save secureops-frontend:latest)
+# 2. (Optional) Rebuild only if you changed code
+# docker compose build
 
-# Install Chart
+# 3. Install Chart
 helm install secureops k8s/helm/secureops-crm
 ```
 

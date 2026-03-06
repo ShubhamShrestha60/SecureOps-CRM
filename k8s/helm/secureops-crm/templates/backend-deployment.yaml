@@ -15,8 +15,9 @@ spec:
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
           ports:
-            - containerPort: 9000
+            - containerPort: 8000
           env:
             - name: DB_HOST
               value: {{ include "secureops-crm.fullname" . }}-db

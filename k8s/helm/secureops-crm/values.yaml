@@ -9,8 +9,9 @@ image:
 backend:
   replicaCount: 1
   image:
-    repository: secureops-backend
+    repository: secureops-crm-backend
     tag: "latest"
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 8000
@@ -21,8 +22,9 @@ backend:
 frontend:
   replicaCount: 1
   image:
-    repository: secureops-frontend
+    repository: secureops-crm-frontend
     tag: "latest"
+    pullPolicy: IfNotPresent
   service:
     type: ClusterIP
     port: 80
