@@ -31,6 +31,9 @@ COPY . .
 # Install dependencies
 RUN composer install --no-interaction --optimize-autoloader --no-dev
 
+# Ensure .env exists for artisan commands
+RUN cp .env.example .env
+
 # Final Stage
 FROM php:8.3-fpm-alpine
 
