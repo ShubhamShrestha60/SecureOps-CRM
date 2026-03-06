@@ -161,4 +161,35 @@ ansible-playbook hardening.yml -c local -i "localhost,"
 ```
 
 ---
-*Created for the SecureOps Portfolio.*
+
+## 🌩️ Chapter 9: Accessing from your Windows Host Browser
+Since you are running AlmaLinux in a VM (Guest) and browsing from Windows (Host), you need to bridge the "Gap."
+
+### 9.1 Find your VM IP
+On your AlmaLinux VM, run:
+```bash
+ip addr show eth0 # Or just 'ip a'
+```
+Locate the IP address (usually something like `192.168.x.x` or `10.0.x.x`).
+
+### 9.2 Windows Host Resolution
+K3s Traefik (the ingress controller) is listening on port 80 of your VM. To reach it via `secureops.local` from Windows:
+
+1.  Open **Notepad** as **Administrator** on Windows.
+2.  Open the file: `C:\Windows\System32\drivers\etc\hosts`
+3.  Add this line at the bottom:
+    ```text
+    <YOUR_VM_IP>  secureops.local
+    ```
+4.  **Save** and restart your browser.
+
+### 9.3 Port Forwarding (The "Dynamic" Way)
+If you don't want to use Ingress/Hosts yet, you can forward traffic from the VM's ports to your Windows host using this special flag:
+```bash
+# On the VM
+kubectl port-forward --address 0.0.0.0 svc/secureops-secureops-crm-frontend 8080:80
+```
+Then visit `http://<YOUR_VM_IP>:8080` on your Windows browser.
+
+---
+*SecureOps Framework - Local-to-Host Professional Edition.*
