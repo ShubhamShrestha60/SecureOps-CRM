@@ -12,6 +12,14 @@ spec:
       labels:
         app: backend
     spec:
+      initContainers:
+        - name: cp-code
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          command: ["sh", "-c", "cp -rp /var/www/. /shared-www/ && chown -R www-data:www-data /shared-www/storage /shared-www/bootstrap/cache"]
+          volumeMounts:
+            - name: shared-files
+              mountPath: /shared-www
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
