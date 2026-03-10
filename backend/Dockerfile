@@ -16,7 +16,7 @@ RUN apk add --no-cache \
     linux-headers
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo_pgsql mbstring zip exif pcntl \
+RUN docker-php-ext-install pdo_pgsql mbstring zip exif pcntl opcache \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd
 
@@ -28,11 +28,8 @@ WORKDIR /var/www
 # Copy application code
 COPY . .
 
-# Install dependencies
+# Install dependencies and optimize autoloader for production
 RUN composer install --no-interaction --optimize-autoloader --no-dev
-
-# Ensure .env exists for artisan commands
-RUN cp .env.example .env
 
 # Final Stage
 FROM php:8.3-fpm-alpine
@@ -53,6 +50,7 @@ RUN apk add --no-cache \
 # Copy PHP extensions and configuration from build stage
 COPY --from=build /usr/local/lib/php/extensions/ /usr/local/lib/php/extensions/
 COPY --from=build /usr/local/etc/php/conf.d/ /usr/local/etc/php/conf.d/
+COPY ./docker/php/opcache.ini /usr/local/etc/php/conf.d/opcache.ini
 
 # Copy from build stage
 COPY --from=build /var/www /var/www
@@ -60,7 +58,12 @@ COPY --from=build /var/www /var/www
 # Set permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache
 
-# Generate APP_KEY if not provided and serve
-EXPOSE 8000
+# Production optimization: cache configuration and routes
+# Note: This requires environment variables to be set correctly at build time or dummy values
+RUN php artisan config:cache && \
+    php artisan route:cache && \
+    php artisan view:cache
 
-CMD ["sh", "-c", "php artisan key:generate --force && php artisan serve --host=0.0.0.0 --port=8000"]
+EXPOSE 9000
+
+CMD ["php-fpm"]
