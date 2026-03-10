@@ -1,0 +1,93 @@
+---
+- name: "Master Infrastructure Automation: SecureOps-CRM"
+  hosts: nodes
+  become: yes
+
+  vars:
+    k3s_version: "v1.28.2+k3s1"
+    firewall_ports:
+      - 80/tcp
+      - 443/tcp
+      - 6443/tcp
+      - 8000/tcp
+      - 9090/tcp
+      - 3000/tcp
+
+  tasks:
+    # --- 1. System Hardening ---
+    - name: Ensure OS is up to date
+      dnf:
+        name: "*"
+        state: latest
+      tags: hardening
+
+    - name: Install security essentials
+      dnf:
+        name:
+          - firewalld
+          - fail2ban
+          - curl
+          - jq
+        state: present
+      tags: hardening
+
+    - name: Configure Firewall (Deny All, Allow Essentials)
+      firewalld:
+        port: "{{ item }}"
+        permanent: yes
+        state: enabled
+      loop: "{{ firewall_ports }}"
+      notify: Reload Firewall
+      tags: hardening
+
+    # --- 2. Container Engine (Docker) ---
+    - name: Add Docker repository
+      shell: dnf config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+      args:
+        creates: /etc/yum.repos.d/docker-ce.repo
+      tags: setup
+
+    - name: Install Docker Engine
+      dnf:
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+        state: present
+      tags: setup
+
+    - name: Ensure Docker is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+      tags: setup
+
+    # --- 3. Orchestration (K3s) ---
+    - name: Download and Install K3s
+      shell: |
+        curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION={{ k3s_version }} sh -s - --write-kubeconfig-mode 644
+      args:
+        creates: /usr/local/bin/k3s
+      tags: setup
+
+    - name: Wait for K3s to be ready
+      command: k3s kubectl get nodes
+      register: nodes_out
+      until: nodes_out.rc == 0
+      retries: 5
+      delay: 10
+      changed_when: false
+      tags: setup
+
+  handlers:
+    - name: Reload Firewall
+      service:
+        name: firewalld
+        state: reloaded
+
+    - name: Restart K3s
+      service:
+        name: k3s
+        state: restarted
