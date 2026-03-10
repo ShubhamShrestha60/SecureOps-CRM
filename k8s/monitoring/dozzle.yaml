@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dozzle
+  namespace: monitoring
+  labels:
+    app: dozzle
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dozzle
+  template:
+    metadata:
+      labels:
+        app: dozzle
+    spec:
+      containers:
+      - name: dozzle
+        image: amir20/dozzle:latest
+        ports:
+        - containerPort: 8080
+        resources:
+          limits:
+            cpu: 100m
+            memory: 128Mi
+          requests:
+            cpu: 50m
+            memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dozzle
+  namespace: monitoring
+spec:
+  selector:
+    app: dozzle
+  ports:
+  - port: 80
+    targetPort: 8080

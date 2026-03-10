@@ -26,6 +26,6 @@ resource "kubernetes_config_map" "terraform_anchor" {
 
   data = {
     "managed" = "true"
-    "author"  = "Antigravity"
+    "author"  = "Shubham"
   }
 }
