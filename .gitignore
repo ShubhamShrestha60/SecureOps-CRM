@@ -1,0 +1,10 @@
+# Local Documentation (Hidden from GitHub)
+/docs/
+/composer.phar
+.env
+vendor/
+node_modules/
+dist/
+.phpunit.cache/
+storage/*.key
+.DS_Store
