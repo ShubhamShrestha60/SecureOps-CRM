@@ -18,6 +18,7 @@ backend:
   env:
     APP_ENV: production
     DB_CONNECTION: pgsql
+    appKey: "base64:uS6yU4I/8fVlvTzL7zN/BqH6v2T4zJv7N7tC8T3A9Y8=" # Should be overridden in production
 
 frontend:
   replicaCount: 1

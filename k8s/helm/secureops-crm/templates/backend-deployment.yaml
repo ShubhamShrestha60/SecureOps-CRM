@@ -16,7 +16,7 @@ spec:
         - name: cp-code
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
           imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
-          command: ["sh", "-c", "cp -rp /var/www/. /shared-www/ && chown -R www-data:www-data /shared-www/storage /shared-www/bootstrap/cache"]
+          command: ["sh", "-c", "cp -rp /var/www/. /shared-www/ && rm -f /shared-www/bootstrap/cache/*.php && chown -R www-data:www-data /shared-www/storage /shared-www/bootstrap/cache"]
           volumeMounts:
             - name: shared-files
               mountPath: /shared-www
@@ -27,6 +27,11 @@ spec:
           ports:
             - containerPort: 9000
           env:
+            - name: APP_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "secureops-crm.fullname" . }}-db-secret
+                  key: app-key
             - name: DB_CONNECTION
               value: {{ .Values.backend.env.DB_CONNECTION | quote }}
             - name: DB_HOST
