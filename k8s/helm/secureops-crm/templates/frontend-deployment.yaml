@@ -25,4 +25,4 @@ spec:
       volumes:
         - name: nginx-config
           configMap:
-            name: {{ include "secureops-crm.fullname" . }}-nginx-config
+            name: {{ include "secureops-crm.fullname" . }}-frontend-config
