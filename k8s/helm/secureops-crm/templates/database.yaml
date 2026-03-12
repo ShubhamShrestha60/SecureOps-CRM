@@ -27,6 +27,17 @@ spec:
                   key: password
           ports:
             - containerPort: 5432
+          {{- if .Values.database.persistence.enabled }}
+          volumeMounts:
+            - name: db-storage
+              mountPath: /var/lib/postgresql/data
+          {{- end }}
+      {{- if .Values.database.persistence.enabled }}
+      volumes:
+        - name: db-storage
+          persistentVolumeClaim:
+            claimName: {{ include "secureops-crm.fullname" . }}-db-pvc
+      {{- end }}
 ---
 apiVersion: v1
 kind: Service

@@ -39,6 +39,11 @@ database:
     database: secureops
     username: admin
     password: secret_password_change_me
+  persistence:
+    enabled: true
+    storageClass: "local-path" # Default for K3s
+    size: 2Gi
+    accessMode: ReadWriteOnce
 
 ingress:
   enabled: true
