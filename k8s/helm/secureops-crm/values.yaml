@@ -12,13 +12,12 @@ backend:
     repository: secureops-crm-backend
     tag: "latest"
     pullPolicy: IfNotPresent
-  service:
-    type: ClusterIP
-    port: 8000
-  env:
     APP_ENV: production
     DB_CONNECTION: pgsql
-    appKey: "base64:uS6yU4I/8fVlvTzL7zN/BqH6v2T4zJv7N7tC8T3A9Y8=" # Should be overridden in production
+    appKey: "base64:uS6yU4I/8fVlvTzL7zN/BqH6v2T4zJv7N7tC8T3A9Y8="
+  service:
+    type: ClusterIP
+    port: 80
 
 frontend:
   replicaCount: 1
