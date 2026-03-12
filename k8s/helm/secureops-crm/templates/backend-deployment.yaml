@@ -20,6 +20,28 @@ spec:
           volumeMounts:
             - name: shared-files
               mountPath: /shared-www
+        {{- if .Values.backend.env.autoMigrate }}
+        - name: db-migrate
+          image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
+          imagePullPolicy: {{ .Values.backend.image.pullPolicy }}
+          command: ["php", "artisan", "migrate", "--force"]
+          env:
+            - name: DB_CONNECTION
+              value: {{ .Values.backend.env.DB_CONNECTION | quote }}
+            - name: DB_HOST
+              value: {{ include "secureops-crm.fullname" . }}-db
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_DATABASE
+              value: {{ .Values.database.auth.database | quote }}
+            - name: DB_USERNAME
+              value: {{ .Values.database.auth.username | quote }}
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "secureops-crm.fullname" . }}-db-secret
+                  key: password
+        {{- end }}
       containers:
         - name: backend
           image: "{{ .Values.backend.image.repository }}:{{ .Values.backend.image.tag }}"
